@@ -173,6 +173,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         onError?.(error.message || 'Subscription payment failed');
       } else {
         onSuccess?.({
+          id: paymentIntent?.id || data.id || 'subscription',
+          status: paymentIntent?.status || 'succeeded',
           paymentIntent,
           subscription: data,
         });
