@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateUser } from '@/lib/db';
 
 interface User {
   email: string;
@@ -13,7 +14,42 @@ const API_BASE_URL = 'https://app.wasapheroes.com/admin_api';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    
+    // Check if this is user dashboard login (email + phone) or admin login (email + password)
+    if (body.phoneNumber) {
+      // User dashboard login
+      const { email, phoneNumber } = body;
+      
+      if (!email || !phoneNumber) {
+        return NextResponse.json(
+          { error: 'Email and phone number are required' },
+          { status: 400 }
+        );
+      }
+
+      // Authenticate user
+      const user = await authenticateUser(email, phoneNumber);
+
+      if (!user) {
+        return NextResponse.json(
+          { error: 'Invalid credentials. Please check your email and phone number.' },
+          { status: 401 }
+        );
+      }
+
+      // Return user data for session
+      return NextResponse.json({
+        id: user.id,
+        email: user.email,
+        fullName: user.full_name,
+        phoneNumber: user.phone_number,
+        createdAt: user.created_at
+      });
+    }
+    
+    // Admin login (existing functionality)
+    const { email, password } = body;
     
     if (!email || !password) {
       return NextResponse.json(

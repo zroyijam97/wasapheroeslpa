@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import StripePayment from './StripePayment';
+import ChipPayment from './ChipPayment';
 
 interface Plan {
   id: string;
@@ -14,6 +14,8 @@ interface Plan {
   priceId?: string;
   trialDays?: number;
 }
+
+
 
 interface StripeProduct {
   id: string;
@@ -35,54 +37,72 @@ interface StripePrice {
 
 const defaultPlans: Plan[] = [
   {
-    id: 'basic',
-    name: 'Basic',
-    description: 'Perfect for individuals getting started',
-    price: 29,
+    id: 'budget',
+    name: 'Pakej Budget',
+    description: 'Sesuai untuk perniagaan kecil yang baru bermula',
+    price: 39,
     interval: 'month',
     features: [
-      'Up to 1,000 messages/month',
-      'Basic WhatsApp integration',
-      'Email support',
-      'Basic analytics',
+      'Sehingga 1,000 mesej/bulan',
+      'Integrasi WhatsApp asas',
+      'Sokongan email',
+      'Analitik asas',
+      'Template mesej standard',
+      'Auto-reply asas',
+      'Broadcast mesej terhad',
+      'Sokongan komuniti',
+      'Setup panduan',
+      'Laporan bulanan',
     ],
-    trialDays: 7,
   },
   {
-    id: 'pro',
-    name: 'Professional',
-    description: 'Best for growing businesses',
-    price: 79,
+    id: 'unlimited',
+    name: 'Pakej Unlimited',
+    description: 'Terbaik untuk perniagaan yang sedang berkembang',
+    price: 59,
     interval: 'month',
     features: [
-      'Up to 10,000 messages/month',
-      'Advanced WhatsApp features',
-      'Priority support',
-      'Advanced analytics',
-      'Custom templates',
-      'API access',
+      'Unlimited Number',
+      'Unlimited Chatbot',
+      'Mesej tanpa had',
+      'Ciri WhatsApp lanjutan',
+      'Sokongan keutamaan 24/7',
+      'Analitik terperinci & laporan real-time',
+      'Template mesej custom tanpa had',
+      'Akses API penuh',
+      'Auto-reply pintar dengan AI',
+      'Broadcast mesej tanpa had',
+      'Integrasi CRM',
+      'Multi-admin access',
+      'Backup data automatik',
+      'Training peribadi',
     ],
     popular: true,
-    trialDays: 14,
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    description: 'For large organizations',
-    price: 199,
-    interval: 'month',
-    features: [
-      'Unlimited messages',
-      'Full WhatsApp Business API',
-      '24/7 dedicated support',
-      'Custom integrations',
-      'White-label solution',
-      'Advanced security',
-      'Custom reporting',
-    ],
-    trialDays: 30,
   },
 ];
+
+const autoHeroesAddOn: AddOn = {
+  id: 'auto-heroes',
+  name: 'Auto Heroes Pack',
+  description: '6 Tools Sosial Media - Automasi Marketing Tanpa Kos Iklan',
+  price: 20,
+  features: [
+    'Facebook Auto Heroes (Auto Add, Like, Comment)',
+    'TikTok Auto Heroes (Auto Follow, Like, Comment)',
+    'Instagram Auto Heroes (Auto Follow, Unfollow, Like)',
+    'Threads Auto Heroes (Auto Follow, Like, Comment)',
+    'X Auto Heroes (Auto Follow, Like, Retweet)',
+    'Shopee Auto Heroes (Auto Follow, Like)',
+  ],
+};
+
+interface AddOn {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  features: string[];
+}
 
 interface SubscriptionPlansProps {
   onPlanSelect?: (plan: Plan) => void;
@@ -101,36 +121,18 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
+  const [hasAutoHeroes, setHasAutoHeroes] = useState(false);
 
   useEffect(() => {
-    // Fetch plans from Stripe if needed
-    fetchPlansFromStripe();
+    // Fetch plans from CHIP if needed
+    fetchPlansFromChip();
   }, []);
 
-  const fetchPlansFromStripe = async () => {
+  const fetchPlansFromChip = async () => {
     try {
-      const response = await fetch('/api/stripe/products');
-      const data = await response.json();
-      
-      if (data.products && data.prices) {
-        // Convert Stripe products to our plan format
-        const stripePlans = data.products.map((product: StripeProduct) => {
-          const price = data.prices.find((p: StripePrice) => p.product === product.id);
-          return {
-            id: product.id,
-            name: product.name,
-            description: product.description || '',
-            price: price ? price.unit_amount / 100 : 0,
-            interval: price?.recurring?.interval || 'month',
-            features: product.metadata?.features ? JSON.parse(product.metadata.features) : [],
-            priceId: price?.id,
-          };
-        });
-        
-        if (stripePlans.length > 0) {
-          setPlans(stripePlans);
-        }
-      }
+      // For now, we'll use the default plans
+      // In the future, you can implement CHIP product fetching if needed
+      console.log('Using default plans for CHIP integration');
     } catch (error) {
       console.error('Error fetching plans:', error);
       // Keep default plans if API fails
@@ -141,6 +143,30 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     setSelectedPlan(plan);
     setShowPayment(true);
     onPlanSelect?.(plan);
+  };
+
+
+
+  const getTotalAmount = () => {
+    if (!selectedPlan) return 0;
+    const planPrice = parseFloat(getDisplayPrice(selectedPlan));
+    const addOnPrice = hasAutoHeroes ? getAutoHeroesPrice() : 0;
+    return planPrice + addOnPrice;
+  };
+
+  const getAutoHeroesPrice = () => {
+    if (isYearly) {
+      return autoHeroesAddOn.price * 12 * 0.8; // 20% discount for yearly
+    }
+    return autoHeroesAddOn.price;
+  };
+
+  const getAutoHeroesOriginalYearlyPrice = () => {
+    return autoHeroesAddOn.price * 12;
+  };
+
+  const handleToggleAutoHeroes = () => {
+    setHasAutoHeroes(!hasAutoHeroes);
   };
 
   const handlePaymentSuccess = (result: { id: string; status: string }) => {
@@ -184,16 +210,27 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           <div className="bg-gray-50 p-6 rounded-lg">
             <h3 className="text-xl font-semibold mb-4">Plan Summary</h3>
             <div className="space-y-2">
-              <p><strong>Plan:</strong> {selectedPlan.name}</p>
-              <p><strong>Price:</strong> RM {getDisplayPrice(selectedPlan)} / {isYearly ? 'year' : 'month'}</p>
-              {selectedPlan.trialDays && (
-                <p className="text-green-600">
-                  <strong>Free Trial:</strong> {selectedPlan.trialDays} days
-                </p>
+              <p><strong>Pakej:</strong> {selectedPlan.name}</p>
+              <p><strong>Harga Pakej:</strong> RM {getDisplayPrice(selectedPlan)} / {isYearly ? 'tahun' : 'bulan'}</p>
+              
+              {hasAutoHeroes && (
+                <div className="mt-4">
+                  <p><strong>Add-On:</strong></p>
+                  <p className="text-sm text-gray-600 ml-4">
+                    • {autoHeroesAddOn.name} - RM {autoHeroesAddOn.price}/bulan
+                  </p>
+                </div>
               )}
+              
+              <div className="border-t pt-2 mt-4">
+                <p className="text-lg font-semibold">
+                  <strong>Jumlah Keseluruhan:</strong> RM {getTotalAmount().toFixed(0)} / {isYearly ? 'tahun' : 'bulan'}
+                </p>
+              </div>
+              
               {isYearly && (
                 <p className="text-green-600">
-                  <strong>You save:</strong> RM {(parseFloat(getOriginalYearlyPrice(selectedPlan)) - parseFloat(getDisplayPrice(selectedPlan))).toFixed(0)} per year
+                  <strong>Anda jimat:</strong> RM {(parseFloat(getOriginalYearlyPrice(selectedPlan)) - parseFloat(getDisplayPrice(selectedPlan))).toFixed(0)} setahun
                 </p>
               )}
             </div>
@@ -213,13 +250,12 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
           
           {/* Payment Form */}
           <div>
-            <StripePayment
-              amount={parseFloat(getDisplayPrice(selectedPlan))}
-              currency="myr"
-              isSubscription={true}
-              priceId={selectedPlan.priceId}
-              customerEmail={userEmail}
-              customerName={userName}
+            <ChipPayment
+              amount={getTotalAmount()}
+              currency="MYR"
+              interval={isYearly ? 'year' : 'month'}
+              clientEmail={userEmail}
+              clientName={userName}
               trialPeriodDays={selectedPlan.trialDays}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
@@ -230,20 +266,22 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     );
   }
 
+
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Choose Your Plan
+          Pilih Pakej Anda
         </h2>
         <p className="text-gray-600 mb-6">
-          Select the perfect plan for your WhatsApp business needs
+          Pilih pakej yang sesuai untuk keperluan perniagaan WhatsApp anda
         </p>
         
         {/* Billing Toggle */}
         <div className="flex items-center justify-center space-x-4 mb-8">
           <span className={`${!isYearly ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
-            Monthly
+            Bulanan
           </span>
           <button
             onClick={() => setIsYearly(!isYearly)}
@@ -258,14 +296,67 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
             />
           </button>
           <span className={`${isYearly ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
-            Yearly
-            <span className="text-green-600 text-sm ml-1">(Save 20%)</span>
+            Tahunan
+            <span className="text-green-600 text-sm ml-1">(Jimat 20%)</span>
           </span>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {plans.map((plan) => (
+      <div className="grid md:grid-cols-3 gap-8 mb-12">
+        {/* Auto Heroes Add-On Card - Positioned First */}
+        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-lg border-2 border-purple-200 transition-all hover:shadow-xl">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {autoHeroesAddOn.name}
+              </h3>
+              <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                Add-On
+              </span>
+            </div>
+            <p className="text-gray-600 mb-4">{autoHeroesAddOn.description}</p>
+            
+            <div className="mb-6">
+              <div className="flex items-baseline">
+                <span className="text-3xl font-bold text-gray-900">
+                  RM {getAutoHeroesPrice().toFixed(0)}
+                </span>
+                <span className="text-gray-500 ml-1">
+                  / {isYearly ? 'tahun' : 'bulan'}
+                </span>
+              </div>
+              {isYearly && (
+                <div className="text-sm text-gray-500">
+                  <span className="line-through">RM {getAutoHeroesOriginalYearlyPrice().toFixed(0)}</span>
+                  <span className="text-green-600 ml-2">Jimat 20%</span>
+                </div>
+              )}
+            </div>
+
+            <ul className="space-y-3 mb-6">
+              {autoHeroesAddOn.features.map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-purple-500 mr-2 mt-0.5">✓</span>
+                  <span className="text-gray-600 text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={handleToggleAutoHeroes}
+              className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
+                hasAutoHeroes
+                  ? 'bg-purple-600 text-white hover:bg-purple-700'
+                  : 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+              }`}
+            >
+              {hasAutoHeroes ? '✓ Ditambah' : '+ Tambah ke Pakej'}
+            </button>
+          </div>
+        </div>
+        
+        {/* Plans Cards - Unlimited first, then Budget */}
+        {plans.filter(plan => plan.id === 'unlimited').map((plan) => (
           <div
             key={plan.id}
             className={`relative bg-white rounded-lg shadow-lg border-2 transition-all hover:shadow-xl ${
@@ -277,17 +368,17 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
             }`}
           >
             {plan.popular && (
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Most Popular
-                </span>
-              </div>
-            )}
+                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                     <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                       Paling Popular
+                     </span>
+                   </div>
+                 )}
             
             {currentPlan === plan.id && (
               <div className="absolute -top-3 right-4">
                 <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Current Plan
+                  Pakej Semasa
                 </span>
               </div>
             )}
@@ -301,23 +392,26 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
               <div className="mb-6">
                 <div className="flex items-baseline">
                   <span className="text-3xl font-bold text-gray-900">
-                    RM {getDisplayPrice(plan)}
+                    RM {hasAutoHeroes ? (parseFloat(getDisplayPrice(plan)) + getAutoHeroesPrice()).toFixed(0) : getDisplayPrice(plan)}
                   </span>
                   <span className="text-gray-500 ml-1">
-                    / {isYearly ? 'year' : 'month'}
+                    / {isYearly ? 'tahun' : 'bulan'}
                   </span>
                 </div>
+                {hasAutoHeroes && (
+                  <div className="mt-1">
+                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium">
+                      + Auto Heroes
+                    </span>
+                  </div>
+                )}
                 {isYearly && (
                   <div className="text-sm text-gray-500">
                     <span className="line-through">RM {getOriginalYearlyPrice(plan)}</span>
-                    <span className="text-green-600 ml-2">Save 20%</span>
+                    <span className="text-green-600 ml-2">Jimat 20%</span>
                   </div>
                 )}
-                {plan.trialDays && (
-                  <p className="text-green-600 text-sm mt-1">
-                    {plan.trialDays} days free trial
-                  </p>
-                )}
+
               </div>
 
               <ul className="space-y-3 mb-6">
@@ -341,8 +435,94 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                 } disabled:opacity-50`}
               >
                 {currentPlan === plan.id
-                  ? 'Current Plan'
-                  : 'Select Plan'}
+                  ? 'Pakej Semasa'
+                  : 'Pilih Pakej'}
+              </button>
+            </div>
+          </div>
+        ))}
+        
+        {plans.filter(plan => plan.id === 'budget').map((plan) => (
+          <div
+            key={plan.id}
+            className={`relative bg-white rounded-lg shadow-lg border-2 transition-all hover:shadow-xl ${
+              plan.popular
+                ? 'border-blue-500 transform scale-105'
+                : 'border-gray-200 hover:border-blue-300'
+            } ${
+              currentPlan === plan.id ? 'ring-2 ring-green-500' : ''
+            }`}
+          >
+            {plan.popular && (
+                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                     <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                       Paling Popular
+                     </span>
+                   </div>
+                 )}
+            
+            {currentPlan === plan.id && (
+              <div className="absolute -top-3 right-4">
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  Pakej Semasa
+                </span>
+              </div>
+            )}
+
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {plan.name}
+              </h3>
+              <p className="text-gray-600 mb-4">{plan.description}</p>
+              
+              <div className="mb-6">
+                <div className="flex items-baseline">
+                  <span className="text-3xl font-bold text-gray-900">
+                    RM {hasAutoHeroes ? (parseFloat(getDisplayPrice(plan)) + getAutoHeroesPrice()).toFixed(0) : getDisplayPrice(plan)}
+                  </span>
+                  <span className="text-gray-500 ml-1">
+                    / {isYearly ? 'tahun' : 'bulan'}
+                  </span>
+                </div>
+                {hasAutoHeroes && (
+                  <div className="mt-1">
+                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-medium">
+                      + Auto Heroes
+                    </span>
+                  </div>
+                )}
+                {isYearly && (
+                  <div className="text-sm text-gray-500">
+                    <span className="line-through">RM {getOriginalYearlyPrice(plan)}</span>
+                    <span className="text-green-600 ml-2">Jimat 20%</span>
+                  </div>
+                )}
+
+              </div>
+
+              <ul className="space-y-3 mb-6">
+                {plan.features.map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-green-500 mr-2 mt-0.5">✓</span>
+                    <span className="text-gray-600 text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => handlePlanSelection(plan)}
+                disabled={currentPlan === plan.id}
+                className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
+                  currentPlan === plan.id
+                    ? 'bg-green-100 text-green-800 cursor-not-allowed'
+                    : plan.popular
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                } disabled:opacity-50`}
+              >
+                {currentPlan === plan.id
+                  ? 'Pakej Semasa'
+                  : 'Pilih Pakej'}
               </button>
             </div>
           </div>
@@ -350,26 +530,26 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       </div>
 
       {/* Payment Methods Info */}
-      <div className="mt-12 text-center">
-        <h3 className="text-lg font-semibold mb-4">Accepted Payment Methods</h3>
+      <div className="mt-8 text-center">
+        <h3 className="text-lg font-semibold mb-4">Kaedah Pembayaran Diterima</h3>
         <div className="flex justify-center items-center space-x-6 text-gray-600">
           <div className="flex items-center space-x-2">
             <span>💳</span>
-            <span>Credit/Debit Cards</span>
+            <span>Kad Kredit/Debit</span>
           </div>
           <div className="flex items-center space-x-2">
             <span>🏦</span>
-            <span>FPX (Malaysian Banks)</span>
+            <span>FPX (Bank Malaysia)</span>
           </div>
           <div className="flex items-center space-x-2">
             <span>🔒</span>
-            <span>Secure by Stripe</span>
+            <span>Selamat dengan CHIP</span>
           </div>
         </div>
         
         <div className="mt-4 text-sm text-gray-500">
-          <p>All payments are processed securely. Cancel anytime.</p>
-          <p>Prices in Malaysian Ringgit (MYR). Taxes may apply.</p>
+          <p>Semua pembayaran diproses dengan selamat. Boleh batal bila-bila masa.</p>
+          <p>Harga dalam Ringgit Malaysia (MYR). Cukai mungkin dikenakan.</p>
         </div>
       </div>
     </div>

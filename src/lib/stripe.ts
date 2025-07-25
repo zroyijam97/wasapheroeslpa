@@ -68,25 +68,7 @@ export const STRIPE_CONFIG = {
   },
 };
 
-// Helper function to create payment intent with FPX support
-export const createPaymentIntent = async ({
-  amount,
-  currency = 'myr',
-  paymentMethodTypes = ['card', 'fpx'],
-  metadata = {},
-}: {
-  amount: number;
-  currency?: string;
-  paymentMethodTypes?: string[];
-  metadata?: Record<string, string>;
-}) => {
-  return await stripe.paymentIntents.create({
-    amount: Math.round(amount * 100), // Convert to cents
-    currency,
-    payment_method_types: paymentMethodTypes,
-    metadata,
-  });
-};
+
 
 // Helper function to create subscription
 export const createSubscription = async ({

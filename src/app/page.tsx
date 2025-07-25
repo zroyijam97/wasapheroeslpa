@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import StripePayment from '../components/StripePayment';
+
 
 type Language = 'ms' | 'en';
 
@@ -66,6 +66,7 @@ interface Content {
          storage: string;
          fileSize: string;
          popular?: boolean;
+         features?: string[];
        }[];
       addOns: {
         title: string;
@@ -150,6 +151,7 @@ interface Content {
          storage: string;
          fileSize: string;
          popular?: boolean;
+         features?: string[];
        }[];
       addOns: {
         title: string;
@@ -275,36 +277,66 @@ const content: Content = {
            annualPeriod: '/tahun',
            accounts: '1 akaun pada setiap platform',
            storage: '1000MB',
-           fileSize: '256MB'
+           fileSize: '256MB',
+           features: [
+             'Bulk messaging',
+             'Chatbot',
+             'Autoresponder',
+             'Send button message',
+             'Send list messages',
+             'REST API',
+             'Link Generator',
+             'WhatsApp LiveChat',
+             'Web Push Notification',
+             'Campaign management'
+           ]
          },
          {
            name: 'Pakej Unlimited',
-           description: 'Unlimited akaun dan fungsi',
+           description: 'Unlimited akaun dan fungsi - Unlimited Number & Unlimited Chatbot',
            price: 'RM59',
            period: '/bulan',
            annualPrice: 'RM590',
            annualPeriod: '/tahun',
-           accounts: '1000 akaun pada setiap platform',
-           storage: '819200MB',
+           accounts: 'Unlimited akaun pada setiap platform',
+           storage: 'Unlimited Storage',
            fileSize: '256MB',
-           popular: true
+           popular: true,
+           features: [
+             '✨ Unlimited Number',
+             '🤖 Unlimited Chatbot',
+             'Bulk messaging',
+             'Advanced Chatbot',
+             'Autoresponder',
+             'Send button message',
+             'Send list messages',
+             'REST API',
+             'Link Generator',
+             'WhatsApp LiveChat',
+             'Web Push Notification',
+             'A/B Testing',
+             'Campaign management',
+             'Auto segmentation',
+             'Welcome Drip',
+             'Composer'
+           ]
          }
        ],
       addOns: {
          title: 'Add-Ons Tersedia',
          items: [
            {
-             name: 'Auto Heroes Tools',
-             description: 'Miliki semua tools Auto Heroes + Auto jadi affiliate untuk Wasap Heroes & Auto Heroes',
+             name: 'Auto Heroes Pack',
+             description: '6 Tools Sosial Media - Automasi Marketing Tanpa Kos Iklan',
              price: 'RM20',
              period: '/bulan',
              features: [
-                'Akses penuh ke <a href="https://autoheroes.vercel.app" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">autoheroes.vercel.app</a>',
-                'Semua tools automation tersedia',
-                'Auto affiliate untuk Wasap Heroes',
-                'Auto affiliate untuk Auto Heroes',
-                'Komisi automatik',
-                'Dashboard analytics'
+                'Facebook Auto Heroes (Auto Add, Like, Comment)',
+                'TikTok Auto Heroes (Auto Follow, Like, Comment)',
+                'Instagram Auto Heroes (Auto Follow, Unfollow, Like)',
+                'Threads Auto Heroes (Auto Follow, Like, Comment)',
+                'X Auto Heroes (Auto Follow, Like, Retweet)',
+                'Shopee Auto Heroes (Auto Follow, Like)'
               ],
              popular: true
            }
@@ -420,36 +452,66 @@ const content: Content = {
            annualPeriod: '/year',
            accounts: '1 account on each platform',
            storage: '1000MB',
-           fileSize: '256MB'
+           fileSize: '256MB',
+           features: [
+             'Bulk messaging',
+             'Chatbot',
+             'Autoresponder',
+             'Send button message',
+             'Send list messages',
+             'REST API',
+             'Link Generator',
+             'WhatsApp LiveChat',
+             'Web Push Notification',
+             'Campaign management'
+           ]
          },
          {
            name: 'Unlimited Package',
-           description: 'Unlimited accounts and features',
+           description: 'Unlimited accounts and features - Unlimited Number & Unlimited Chatbot',
            price: 'RM59',
            period: '/month',
            annualPrice: 'RM590',
            annualPeriod: '/year',
-           accounts: '1000 accounts on each platform',
-           storage: '819200MB',
+           accounts: 'Unlimited accounts on each platform',
+           storage: 'Unlimited Storage',
            fileSize: '256MB',
-           popular: true
+           popular: true,
+           features: [
+             '✨ Unlimited Number',
+             '🤖 Unlimited Chatbot',
+             'Bulk messaging',
+             'Advanced Chatbot',
+             'Autoresponder',
+             'Send button message',
+             'Send list messages',
+             'REST API',
+             'Link Generator',
+             'WhatsApp LiveChat',
+             'Web Push Notification',
+             'A/B Testing',
+             'Campaign management',
+             'Auto segmentation',
+             'Welcome Drip',
+             'Composer'
+           ]
          }
        ],
       addOns: {
          title: 'Available Add-Ons',
          items: [
            {
-             name: 'Auto Heroes Tools',
-             description: 'Get all Auto Heroes tools + Auto affiliate for Wasap Heroes & Auto Heroes',
+             name: 'Auto Heroes Pack',
+             description: '6 Social Media Tools - Marketing Automation Without Ad Costs',
              price: 'RM20',
              period: '/month',
              features: [
-                'Full access to <a href="https://autoheroes.vercel.app" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">autoheroes.vercel.app</a>',
-                'All automation tools available',
-                'Auto affiliate for Wasap Heroes',
-                'Auto affiliate for Auto Heroes',
-                'Automatic commissions',
-                'Analytics dashboard'
+                'Facebook Auto Heroes (Auto Add, Like, Comment)',
+                 'TikTok Auto Heroes (Auto Follow, Like, Comment)',
+                 'Instagram Auto Heroes (Auto Follow, Unfollow, Like)',
+                 'Threads Auto Heroes (Auto Follow, Like, Comment)',
+                 'X Auto Heroes (Auto Follow, Like, Retweet)',
+                 'Shopee Auto Heroes (Auto Follow, Like)'
               ],
              popular: true
            }
@@ -1182,32 +1244,13 @@ export default function Home() {
                       )}
                     </div>
                    <div className="space-y-3">
-                     <StripePayment 
-                       amount={calculateTotalPrice(plan)} 
-                       currency="myr"
-                       isSubscription={billingCycle === 'annually'}
-                       onSuccess={(result) => {
-                         console.log('Payment successful:', result);
-                         alert(language === 'ms' ? 'Pembayaran berjaya!' : 'Payment successful!');
-                       }}
-                       onError={(error) => {
-                         console.error('Payment error:', error);
-                         alert(language === 'ms' ? 'Pembayaran gagal. Sila cuba lagi.' : 'Payment failed. Please try again.');
-                       }}
-                     />
-                     <button 
-                        onClick={() => toggleAddOn(plan.name)}
-                        className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-colors border ${
-                          selectedAddOns[plan.name] 
-                            ? 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200' 
-                            : 'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200'
-                        }`}
-                      >
-                        {selectedAddOns[plan.name] 
-                          ? (language === 'ms' ? '✓ Auto Heroes Ditambah' : '✓ Auto Heroes Added')
-                          : (language === 'ms' ? '+ Auto Heroes (RM20/bulan)' : '+ Auto Heroes (RM20/month)')
-                        }
-                      </button>
+                     <a 
+                       href="/payments"
+                       className="w-full bg-gradient-to-r from-cyan-500 to-green-500 text-white py-3 px-6 rounded-lg font-semibold hover:from-cyan-600 hover:to-green-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25 relative overflow-hidden group block text-center"
+                     >
+                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-[-200%] transition-transform duration-1000"></div>
+                       <span className="relative z-10">{language === 'ms' ? 'Mula Sekarang' : 'Get Started'}</span>
+                     </a>
                    </div>
                  </div>
                </div>
@@ -1256,19 +1299,7 @@ export default function Home() {
                          </ul>
                        </div>
                      )}
-                     <StripePayment 
-                       amount={parseInt(addon.price.replace('RM', ''))}
-                       currency="myr"
-                       isSubscription={false}
-                       onSuccess={(result) => {
-                         console.log('Add-on payment successful:', result);
-                         alert(language === 'ms' ? 'Pembayaran add-on berjaya!' : 'Add-on payment successful!');
-                       }}
-                       onError={(error) => {
-                         console.error('Add-on payment error:', error);
-                         alert(language === 'ms' ? 'Pembayaran add-on gagal. Sila cuba lagi.' : 'Add-on payment failed. Please try again.');
-                       }}
-                     />
+
                    </div>
                  </div>
                ))}
