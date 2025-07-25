@@ -12,7 +12,7 @@ const PaymentsPage: React.FC = () => {
   const [customerEmail, setCustomerEmail] = useState<string>('customer@example.com');
   const [customerName, setCustomerName] = useState<string>('John Doe');
 
-  const handlePaymentSuccess = (result: any) => {
+  const handlePaymentSuccess = (result: { id: string; status: string }) => {
     console.log('Payment successful:', result);
     alert('Payment successful! Thank you for your purchase.');
   };
@@ -22,7 +22,7 @@ const PaymentsPage: React.FC = () => {
     alert('Payment failed: ' + error);
   };
 
-  const handlePlanSelect = (plan: any) => {
+  const handlePlanSelect = (plan: { id: string; name: string; price: number }) => {
     console.log('Plan selected:', plan);
   };
 

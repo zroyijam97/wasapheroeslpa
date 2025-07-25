@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from "next/image";
+
 import StripePayment from '../components/StripePayment';
 
 type Language = 'ms' | 'en';
@@ -486,7 +486,7 @@ export default function Home() {
     }));
   };
 
-  const calculateTotalPrice = (plan: any) => {
+  const calculateTotalPrice = (plan: { name: string; price: string; annualPrice: string }) => {
     const basePrice = billingCycle === 'monthly' ? 
       parseInt(plan.price.replace('RM', '')) : 
       parseInt(plan.annualPrice.replace('RM', ''));
@@ -868,7 +868,7 @@ export default function Home() {
                 
                 <div className="relative z-10">
                   <div className="flex items-center mb-4">
-                    <div className="text-green-400 text-4xl mr-2">"</div>
+                    <div className="text-green-400 text-4xl mr-2">&quot;</div>
                     <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
                   </div>
                   <h4 className="text-lg font-semibold text-white mb-2 group-hover:text-green-400 transition-colors duration-300">

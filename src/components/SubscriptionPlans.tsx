@@ -83,7 +83,6 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Fetch plans from Stripe if needed
@@ -97,8 +96,8 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       
       if (data.products && data.prices) {
         // Convert Stripe products to our plan format
-        const stripePlans = data.products.map((product: any) => {
-          const price = data.prices.find((p: any) => p.product === product.id);
+        const stripePlans = data.products.map((product: { id: string; name: string; description?: string; metadata?: { features?: string } }) => {
+          const price = data.prices.find((p: { id: string; product: string; unit_amount: number; recurring?: { interval: string } }) => p.product === product.id);
           return {
             id: product.id,
             name: product.name,
@@ -126,7 +125,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     onPlanSelect?.(plan);
   };
 
-  const handlePaymentSuccess = (result: any) => {
+  const handlePaymentSuccess = (result: { id: string; status: string }) => {
     console.log('Payment successful:', result);
     setShowPayment(false);
     setSelectedPlan(null);
@@ -314,7 +313,7 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
 
               <button
                 onClick={() => handlePlanSelection(plan)}
-                disabled={currentPlan === plan.id || loading}
+                disabled={currentPlan === plan.id}
                 className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
                   currentPlan === plan.id
                     ? 'bg-green-100 text-green-800 cursor-not-allowed'
@@ -325,8 +324,6 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
               >
                 {currentPlan === plan.id
                   ? 'Current Plan'
-                  : loading
-                  ? 'Loading...'
                   : 'Select Plan'}
               </button>
             </div>

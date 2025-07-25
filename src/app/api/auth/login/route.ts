@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user with exact email match
-    const user = usersData.data.find((u: any) => u.email === email);
+    const user = usersData.data.find((u: { email: string; id: string; fullname: string; username: string; plan_name: string }) => u.email === email);
     
     // Debug: Log the found user to see available fields
     console.log('Found user:', JSON.stringify(user, null, 2));

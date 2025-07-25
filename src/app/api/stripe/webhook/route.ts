@@ -120,8 +120,8 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     id: subscription.id,
     customer: subscription.customer,
     status: subscription.status,
-    current_period_start: (subscription as any).current_period_start,
-    current_period_end: (subscription as any).current_period_end,
+    current_period_start: (subscription as Stripe.Subscription & { current_period_start: number }).current_period_start,
+    current_period_end: (subscription as Stripe.Subscription & { current_period_end: number }).current_period_end,
   });
 }
 
@@ -132,8 +132,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     id: subscription.id,
     customer: subscription.customer,
     status: subscription.status,
-    current_period_start: (subscription as any).current_period_start,
-    current_period_end: (subscription as any).current_period_end,
+    current_period_start: (subscription as Stripe.Subscription & { current_period_start: number }).current_period_start,
+    current_period_end: (subscription as Stripe.Subscription & { current_period_end: number }).current_period_end,
   });
 }
 
@@ -153,7 +153,7 @@ async function handleInvoicePaymentSuccess(invoice: Stripe.Invoice) {
   // Handle successful recurring payment
   // Extend subscription period
   // Send receipt
-  const subscriptionId = (invoice as any).subscription;
+  const subscriptionId = (invoice as Stripe.Invoice & { subscription: string }).subscription;
   console.log('Processing successful invoice payment:', {
     id: invoice.id,
     customer: invoice.customer,
@@ -167,7 +167,7 @@ async function handleInvoicePaymentFailure(invoice: Stripe.Invoice) {
   // Handle failed recurring payment
   // Send payment failure notification
   // Implement retry logic or suspend account
-  const subscriptionId = (invoice as any).subscription;
+  const subscriptionId = (invoice as Stripe.Invoice & { subscription: string }).subscription;
   console.log('Processing failed invoice payment:', {
     id: invoice.id,
     customer: invoice.customer,

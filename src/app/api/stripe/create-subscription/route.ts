@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, createCustomer, createSubscription } from '@/lib/stripe';
+import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       subscriptionId: subscription.id,
       customerId: customer.id,
-      clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
+      clientSecret: (subscription.latest_invoice as Stripe.Invoice & { payment_intent?: { client_secret?: string } })?.payment_intent?.client_secret,
       status: subscription.status,
     });
   } catch (error) {

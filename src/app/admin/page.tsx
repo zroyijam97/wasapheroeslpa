@@ -69,7 +69,7 @@ export default function AdminDashboard() {
       } else {
         setMessage('Error saving settings. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setMessage('Error saving settings. Please try again.');
     } finally {
       setIsSaving(false);

@@ -3,13 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Elements,
-  CardElement,
   useStripe,
   useElements,
   PaymentElement,
 } from '@stripe/react-stripe-js';
 import { getStripe, STRIPE_CONFIG } from '@/lib/stripe';
-import { loadStripe } from '@stripe/stripe-js';
+
 
 interface PaymentFormProps {
   amount: number;
@@ -19,7 +18,7 @@ interface PaymentFormProps {
   customerEmail?: string;
   customerName?: string;
   trialPeriodDays?: number;
-  onSuccess?: (result: any) => void;
+  onSuccess?: (result: { id: string; status: string; [key: string]: any }) => void;
   onError?: (error: string) => void;
 }
 
@@ -295,18 +294,18 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 };
 
 interface StripePaymentProps extends PaymentFormProps {
-  stripePromise?: Promise<any>;
+  stripePromise?: Promise<import('@stripe/stripe-js').Stripe | null>;
 }
 
 const StripePayment: React.FC<StripePaymentProps> = ({
   stripePromise,
   ...props
 }) => {
-  const [stripe, setStripe] = useState<any>(null);
+  const [stripe, setStripe] = useState<import('@stripe/stripe-js').Stripe | null>(null);
 
   useEffect(() => {
     const initStripe = async () => {
-      const stripeInstance = stripePromise || (await getStripe());
+      const stripeInstance = stripePromise ? await stripePromise : await getStripe();
       setStripe(stripeInstance);
     };
     initStripe();

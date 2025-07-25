@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, createPaymentIntent } from '@/lib/stripe';
+import { createPaymentIntent } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
