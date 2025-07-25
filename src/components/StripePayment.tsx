@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Elements,
   useStripe,
   useElements,
+  Elements,
   PaymentElement,
 } from '@stripe/react-stripe-js';
-import { getStripe, STRIPE_CONFIG } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 
 
 interface PaymentFormProps {
@@ -18,7 +18,7 @@ interface PaymentFormProps {
   customerEmail?: string;
   customerName?: string;
   trialPeriodDays?: number;
-  onSuccess?: (result: { id: string; status: string; [key: string]: any }) => void;
+  onSuccess?: (result: { id: string; status: string; [key: string]: unknown }) => void;
   onError?: (error: string) => void;
 }
 
@@ -39,14 +39,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   const [clientSecret, setClientSecret] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
 
-  useEffect(() => {
-    if (!isSubscription) {
-      // Create payment intent for one-time payment
-      createPaymentIntent();
-    }
-  }, [amount, currency, isSubscription]);
-
-  const createPaymentIntent = async () => {
+  const createPaymentIntent = useCallback(async () => {
     try {
       const response = await fetch('/api/stripe/create-payment-intent', {
         method: 'POST',
@@ -71,7 +64,14 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       console.error('Error creating payment intent:', error);
       onError?.('Failed to initialize payment');
     }
-  };
+  }, [amount, currency, onError]);
+
+  useEffect(() => {
+    if (!isSubscription) {
+      // Create payment intent for one-time payment
+      createPaymentIntent();
+    }
+  }, [isSubscription, createPaymentIntent]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -119,7 +119,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     if (error) {
       onError?.(error.message || 'Payment failed');
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-      onSuccess?.(paymentIntent);
+      onSuccess?.({
+        id: paymentIntent.id,
+        status: paymentIntent.status,
+        paymentIntent
+      });
     }
   };
 
