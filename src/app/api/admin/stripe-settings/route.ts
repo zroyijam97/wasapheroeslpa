@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     const settings = await request.json();
+    console.log('Received settings:', settings);
     
     // Validate required fields
     const requiredFields = ['secretKey', 'publishableKey', 'webhookSecret', 'webhookEndpoint', 'mode'];
@@ -79,10 +80,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize database if needed
+    console.log('Initializing database...');
     await initializeDatabase();
     
     // Save settings to database
+    console.log('Saving settings to database...');
     await saveStripeSettings(settings);
+    console.log('Settings saved to database successfully');
     
     // Also update environment variables file for immediate use
     const envPath = path.join(process.cwd(), '.env.local');

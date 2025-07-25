@@ -67,10 +67,12 @@ export default function AdminDashboard() {
       if (response.ok) {
         setMessage('Settings saved successfully!');
       } else {
-        setMessage('Error saving settings. Please try again.');
+        const errorData = await response.json();
+        setMessage(errorData.error || 'Error saving settings. Please try again.');
       }
-    } catch {
-      setMessage('Error saving settings. Please try again.');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      setMessage('Error saving settings. Please check your connection and try again.');
     } finally {
       setIsSaving(false);
     }
