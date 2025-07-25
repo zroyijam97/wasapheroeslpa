@@ -11,8 +11,26 @@ interface Plan {
   interval: 'month' | 'year';
   features: string[];
   popular?: boolean;
-  trialDays?: number;
   priceId?: string;
+  trialDays?: number;
+}
+
+interface StripeProduct {
+  id: string;
+  name: string;
+  description?: string;
+  metadata?: {
+    features?: string;
+  };
+}
+
+interface StripePrice {
+  id: string;
+  product: string;
+  unit_amount: number;
+  recurring?: {
+    interval: string;
+  };
 }
 
 const defaultPlans: Plan[] = [
@@ -96,8 +114,8 @@ const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       
       if (data.products && data.prices) {
         // Convert Stripe products to our plan format
-        const stripePlans = data.products.map((product: { id: string; name: string; description?: string; metadata?: { features?: string } }) => {
-          const price = data.prices.find((p: { id: string; product: string; unit_amount: number; recurring?: { interval: string } }) => p.product === product.id);
+        const stripePlans = data.products.map((product: StripeProduct) => {
+          const price = data.prices.find((p: StripePrice) => p.product === product.id);
           return {
             id: product.id,
             name: product.name,
